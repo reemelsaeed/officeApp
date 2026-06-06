@@ -1,29 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:office_application/core/models/models.dart';
+import 'package:office_application/core/services/mqtt_service.dart';
 import 'package:office_application/features/rooms/data/models/room_model.dart';
 import 'package:office_application/features/rooms/presentation/screens/roomDetailes_screen.dart';
 
-class RoomSummaryWidget extends StatelessWidget {
-  const RoomSummaryWidget({super.key, required this.roomModel});
+class RoomSummaryWidget extends StatefulWidget {
+  RoomSummaryWidget({super.key, required this.roomModel});
   final RoomModel roomModel;
 
   @override
-  Widget build(BuildContext context) {
-    final temp = roomModel.sensors?.firstWhere(
-      (s) => s.type == SensorType.temperature,
-      orElse: () => SensorModel(
-        id: '',
-        name: '',
-        type: SensorType.temperature,
-        value: 0,
-        unit: '°C',
-      ),
+  State<RoomSummaryWidget> createState() => _RoomSummaryWidgetState();
+}
+
+class _RoomSummaryWidgetState extends State<RoomSummaryWidget> {
+  double temp = 0;
+  @override
+  void initState() {
+    MqttServices().subscribe(
+      'office/room/${widget.roomModel.id}/${widget.roomModel.temperature}}',
+      (payload) {
+        if (mounted) {
+          setState(() {
+            temp = double.parse(payload);
+          });
+        }
+      },
     );
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => RoomdetailesScreen(roomModel: roomModel),
+          builder: (context) => RoomdetailesScreen(roomModel: widget.roomModel),
         ),
       ),
       child: Container(
@@ -43,7 +54,7 @@ class RoomSummaryWidget extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  roomModel.name,
+                  widget.roomModel.name,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
                 Spacer(),
@@ -51,17 +62,17 @@ class RoomSummaryWidget extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: roomModel.status == room_state.Occupied
+                    color: widget.roomModel.status == room_state.Occupied
                         ? Color(0xffFEF3C7)
                         : Color(0xffD1FAE5),
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: Text(
-                    roomModel.status.name,
+                    widget.roomModel.status.name,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: roomModel.status == room_state.Occupied
+                      color: widget.roomModel.status == room_state.Occupied
                           ? Color(0xff92400E)
                           : Color(0xff065F46),
                     ),
@@ -77,7 +88,7 @@ class RoomSummaryWidget extends StatelessWidget {
                 Icon(Icons.thermostat, size: 14, color: Colors.grey),
                 SizedBox(width: 4),
                 Text(
-                  '${'${temp?.value}${temp?.unit}'}',
+                  temp.toString(),
                   style: TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],

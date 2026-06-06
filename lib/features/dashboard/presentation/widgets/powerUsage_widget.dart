@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class PowerusageWidget extends StatelessWidget {
-  const PowerusageWidget({super.key});
+  const PowerusageWidget({super.key, required this.power});
+
+  final double power;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class PowerusageWidget extends StatelessWidget {
           Spacer(),
           ///////////////////// will be a number from ESP32///////////////////////////////
           Text(
-            '14.5 KW',
+            '${power.toString()} KW',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w500,

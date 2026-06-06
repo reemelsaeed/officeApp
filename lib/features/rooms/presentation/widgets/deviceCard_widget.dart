@@ -3,12 +3,33 @@ import 'package:office_application/core/models/models.dart';
 
 class DeviceCard extends StatelessWidget {
   final DeviceModel device;
+  bool isOn;
   final ValueChanged<bool> onToggle;
 
-  const DeviceCard({super.key, required this.device, required this.onToggle});
+  DeviceCard({
+    super.key,
+    required this.device,
+    required this.onToggle,
+    required this.isOn,
+  });
 
   @override
   Widget build(BuildContext context) {
+    IconData _getIcon(DeviceType type) {
+      switch (type) {
+        case DeviceType.light:
+          return Icons.lightbulb_outline;
+        case DeviceType.ac:
+          return Icons.ac_unit;
+        case DeviceType.curtains:
+          return Icons.blinds_outlined;
+        case DeviceType.projector:
+          return Icons.videocam_outlined;
+        case DeviceType.socket:
+          return Icons.power_outlined;
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -19,85 +40,35 @@ class DeviceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top Row: icon + optional status/temp
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _DeviceIcon(type: device.type),
-              _TopRightInfo(device: device),
-            ],
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xff4F8EF7).withOpacity(.1), // dark background
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              _getIcon(device.type),
+              color: const Color(0xff4FC3F7), // neon blue
+              size: 22,
+            ),
           ),
-
-          const Spacer(),
-
-          // Bottom Row: name + toggle
+          SizedBox(height: 10),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                device.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              Text(device.name),
+              Spacer(),
               Switch(
-                value: device.isOn,
+                value: isOn,
                 onChanged: onToggle,
                 activeColor: Colors.white,
                 activeTrackColor: const Color(0xff1877F2),
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: const Color(0xffE0E0E0),
               ),
             ],
           ),
         ],
       ),
     );
-  }
-}
-
-class _DeviceIcon extends StatelessWidget {
-  final DeviceType type;
-  const _DeviceIcon({required this.type});
-
-  IconData get icon => switch (type) {
-    DeviceType.light => Icons.lightbulb_outline,
-    DeviceType.ac => Icons.ac_unit,
-    DeviceType.curtains => Icons.blinds_outlined,
-    DeviceType.projector => Icons.video_camera_back_outlined,
-    DeviceType.socket => Icons.power_outlined,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: const Color(0xffE8F0FE),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Icon(icon, color: const Color(0xff1877F2), size: 20),
-    );
-  }
-}
-
-class _TopRightInfo extends StatelessWidget {
-  final DeviceModel device;
-  const _TopRightInfo({required this.device});
-
-  @override
-  Widget build(BuildContext context) {
-    if (device.temperature != null) {
-      return Text(
-        '${device.temperature!.toInt()}°',
-        style: const TextStyle(fontSize: 18, color: Colors.grey),
-      );
-    }
-    if (device.curtainStatus != null) {
-      return Text(
-        device.curtainStatus!,
-        style: const TextStyle(fontSize: 13, color: Colors.grey),
-      );
-    }
-    return const SizedBox.shrink();
   }
 }

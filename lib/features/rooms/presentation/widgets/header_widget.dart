@@ -3,200 +3,79 @@ import 'package:office_application/core/models/models.dart';
 import 'package:office_application/features/rooms/data/models/room_model.dart';
 
 class HeaderWidget extends StatelessWidget {
-  const HeaderWidget({super.key, required this.roomModel});
+  const HeaderWidget({
+    super.key,
+    required this.roomModel,
+    required this.sensorValues,
+  });
   final RoomModel roomModel;
+  final Map<SensorType, String> sensorValues;
 
   @override
   Widget build(BuildContext context) {
-    final temp = roomModel.sensors?.firstWhere(
-      (s) => s.type == SensorType.temperature,
-      orElse: () => SensorModel(
-        id: '',
-        name: '',
-        type: SensorType.temperature,
-        value: 0,
-        unit: '°C',
+    final sensors = roomModel.sensors ?? [];
+    IconData _getIcon(SensorType type) {
+      switch (type) {
+        case SensorType.temperature:
+          return Icons.thermostat;
+        case SensorType.co2:
+          return Icons.air;
+        case SensorType.occupancy:
+          return Icons.people_outline;
+        case SensorType.door:
+          return Icons.door_front_door_outlined;
+        case SensorType.gas:
+          return Icons.local_fire_department_outlined;
+        case SensorType.smoke:
+          return Icons.smoking_rooms_outlined;
+        case SensorType.waterLeak:
+          return Icons.water_drop_outlined;
+        case SensorType.humidity:
+          return Icons.water_outlined;
+        default:
+          return Icons.sensors;
+      }
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.5,
       ),
-    );
-    final co2 = roomModel.sensors?.firstWhere(
-      (s) => s.type == SensorType.co2,
-      orElse: () => SensorModel(
-        id: '',
-        name: '',
-        type: SensorType.co2,
-        value: 0,
-        unit: 'ppm',
-      ),
-    );
-    final occupancy = roomModel.sensors?.firstWhere(
-      (s) => s.type == SensorType.occupancy,
-      orElse: () => SensorModel(
-        id: '',
-        name: '',
-        type: SensorType.occupancy,
-        value: 0,
-        unit: '',
-      ),
-    );
-    final door = roomModel.sensors?.firstWhere(
-      (s) => s.type == SensorType.door,
-      orElse: () => SensorModel(
-        id: '',
-        name: '',
-        type: SensorType.door,
-        value: 0,
-        unit: '',
-      ),
-    );
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            ///// TEMP /////
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.thermostat, size: 14, color: Colors.grey),
-                        SizedBox(width: 4),
-                        Text(
-                          'TEMP',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Text('${temp?.value}${temp?.unit}'),
-                  ],
-                ),
+      itemCount: sensors.length,
+      itemBuilder: (context, index) {
+        final sensor = sensors[index];
+        return Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(_getIcon(sensor.type), size: 16, color: Colors.grey),
+              SizedBox(height: 8),
+              Text(
+                sensor.name,
+                style: TextStyle(fontSize: 11, color: Colors.grey),
               ),
-            ),
-
-            VerticalDivider(
-              width: 1,
-              thickness: 0.5,
-              color: Colors.grey.shade200,
-            ),
-
-            ///// PEOPLE /////
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.people_outline,
-                          size: 14,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'PEOPLE',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Text('${occupancy?.value.toInt()}'),
-                  ],
-                ),
+              SizedBox(height: 4),
+              Text(
+                sensor.type == SensorType.door
+                    ? (sensorValues[sensor.type] == '1' ? 'Locked' : 'Open')
+                    : '${sensorValues[sensor.type] ?? '--'}${sensor.unit}',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
               ),
-            ),
-
-            VerticalDivider(
-              width: 1,
-              thickness: 0.5,
-              color: Colors.grey.shade200,
-            ),
-            ///// CO2 /////
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.air, size: 14, color: Colors.grey),
-                        SizedBox(width: 4),
-                        Text(
-                          'CO2',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Text('${co2?.value.toStringAsFixed(0)}'),
-                  ],
-                ),
-              ),
-            ),
-
-            VerticalDivider(
-              width: 1,
-              thickness: 0.5,
-              color: Colors.grey.shade200,
-            ),
-
-            ///// DOOR /////
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.door_front_door_outlined,
-                          size: 14,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'DOOR',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Text(door?.value == 1 ? 'Locked' : 'Open'),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

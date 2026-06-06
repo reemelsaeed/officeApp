@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:office_application/core/services/mqtt_service.dart';
 import 'package:office_application/features/dashboard/presentation/screens/home_screen.dart';
 import 'package:office_application/features/rooms/presentation/screens/rooms_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MqttServices().connect();
   runApp(const MyApp());
 }
 

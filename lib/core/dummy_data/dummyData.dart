@@ -1,6 +1,7 @@
 import 'package:office_application/core/models/models.dart';
 import 'package:office_application/features/rooms/data/models/room_model.dart';
 
+///////rooms//////
 List<RoomModel> allRooms = [
   RoomModel(
     id: 1,
@@ -27,7 +28,7 @@ List<RoomModel> allRooms = [
         name: 'Occupancy',
         type: SensorType.occupancy,
         value: 8,
-        unit: 'people',
+        unit: '',
       ),
       SensorModel(
         id: 's4',
@@ -48,13 +49,13 @@ List<RoomModel> allRooms = [
       DeviceModel(id: 1, name: 'Light', type: DeviceType.light, isOn: true),
       DeviceModel(
         id: 1,
-        name: 'projector/TV',
+        name: 'projector',
         type: DeviceType.projector,
         isOn: true,
       ),
     ],
   ),
-
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   RoomModel(
     id: 2,
     name: 'Meeting Room 2',
@@ -80,7 +81,7 @@ List<RoomModel> allRooms = [
         name: 'Occupancy',
         type: SensorType.occupancy,
         value: 8,
-        unit: 'people',
+        unit: '',
       ),
       SensorModel(
         id: 's4',
@@ -91,7 +92,7 @@ List<RoomModel> allRooms = [
       ),
     ],
   ),
-
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   RoomModel(
     id: 3,
     name: 'Kitchen',
@@ -135,7 +136,7 @@ List<RoomModel> allRooms = [
       ),
     ],
   ),
-
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   RoomModel(
     id: 4,
     name: 'Office 1',
@@ -152,22 +153,18 @@ List<RoomModel> allRooms = [
       DeviceModel(id: 1, name: 'Light', type: DeviceType.light, isOn: true),
       DeviceModel(
         id: 1,
-        name: 'projector/TV',
+        name: 'projector',
         type: DeviceType.projector,
         isOn: true,
       ),
     ],
   ),
 ];
-List<DeviceModel> meetingRoom1Devices() => [
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+List<DeviceModel> allDevices = [
   DeviceModel(id: 1, name: 'AC', type: DeviceType.ac, isOn: true),
   DeviceModel(id: 1, name: 'curtains', type: DeviceType.curtains, isOn: true),
   DeviceModel(id: 1, name: 'Light', type: DeviceType.light, isOn: true),
-  DeviceModel(
-    id: 1,
-    name: 'projector/TV',
-    type: DeviceType.projector,
-    isOn: true,
-  ),
+  DeviceModel(id: 1, name: 'projector', type: DeviceType.projector, isOn: true),
   DeviceModel(id: 1, name: 'socket', type: DeviceType.socket, isOn: true),
 ];
