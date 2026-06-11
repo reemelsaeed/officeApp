@@ -4,6 +4,8 @@ import 'package:office_application/core/services/mqtt_service.dart';
 import 'package:office_application/features/rooms/data/models/room_model.dart';
 import 'package:office_application/features/rooms/presentation/widgets/deviceCard_widget.dart';
 import 'package:office_application/features/rooms/presentation/widgets/header_widget.dart';
+import 'package:office_application/features/rooms/presentation/widgets/scenes_widget.dart';
+import 'package:office_application/features/rooms/services/room_services.dart';
 
 class RoomdetailesScreen extends StatefulWidget {
   RoomdetailesScreen({super.key, required this.roomModel});
@@ -15,15 +17,17 @@ class RoomdetailesScreen extends StatefulWidget {
 
 class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
   List<bool> devicesState = [];
-
   Map<SensorType, String> _sensorValues = {};
-
   Map<DeviceType, bool> _deviceStates = {};
+  List<DeviceModel> _devices = [];
+  List<SceneModel> _scenes = [];
+  Set<int> _activeScenes = {};
 
   @override
   void initState() {
     super.initState();
-    //devicesState = widget.roomModel.devices?.map((d) => d.isOn).toList() ?? [];
+    _loadDevices();
+    _loadscenes();
     // subscribe for sensors//
     for (final sensor in widget.roomModel.sensors ?? []) {
       MqttServices().subscribe(
@@ -36,10 +40,16 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
           }
         },
       );
+      // final cached = MqttServices().getCachedValue(
+      //   'office/room/${widget.roomModel.id}/sensors/${sensor.type.toString().split('.').last}',
+      // );
+      // if (cached != null) {
+      //   _sensorValues[sensor.type] = cached;
+      // }
     }
     //////////////////////////////////////////////////////////
     // subscribe for devices//
-    for (final device in widget.roomModel.devices ?? []) {
+    for (final device in _devices) {
       MqttServices().subscribe(
         'office/room/${widget.roomModel.id}/devices/${device.type.toString().split('.').last}/state',
         (payload) {
@@ -50,9 +60,54 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
           }
         },
       );
+      final cached = MqttServices().getCachedValue(
+        'office/room/${widget.roomModel.id}/devices/${device.type.toString().split('.').last}/state',
+      );
+      if (cached != null) {
+        _deviceStates[device.type] = cached == 'ON';
+      }
+    }
+    /////////////////////////////////////////////////////////////////////
+  }
+
+  void _loadDevices() async {
+    final data = await RoomServices().getDevices(widget.roomModel.id);
+    if (!mounted) return;
+    setState(() {
+      _devices = data.map((map) => DeviceModel.fromMap(map)).toList();
+    });
+    for (final device in _devices) {
+      MqttServices().subscribe(
+        'office/room/${widget.roomModel.id}/devices/${device.type.name}/state',
+        (payload) {
+          if (mounted) {
+            setState(() {
+              _deviceStates[device.type] = payload == 'ON';
+            });
+          }
+        },
+      );
+      final cached = MqttServices().getCachedValue(
+        'office/room/${widget.roomModel.id}/devices/${device.type.name}/state',
+      );
+      if (cached != null && mounted) {
+        setState(() {
+          _deviceStates[device.type] = cached == 'ON';
+        });
+      }
     }
   }
 
+  ///////////////////////////////////
+  void _loadscenes() async {
+    final data = await RoomServices().getScenes(widget.roomModel.id);
+    if (!mounted) return;
+    setState(() {
+      _scenes = data.map((map) => SceneModel.fromMap(map)).toList();
+    });
+  }
+
+  ///////////////////////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,45 +145,84 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Sensors',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 12),
-            HeaderWidget(
-              roomModel: widget.roomModel,
-              sensorValues: _sensorValues,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Devices',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 16),
-            Expanded(
-              child: GridView.builder(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Sensors',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              ),
+              SizedBox(height: 12),
+              HeaderWidget(
+                roomModel: widget.roomModel,
+                sensorValues: _sensorValues,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Quick Scenes',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _scenes.length,
+
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: ScenesWidget(
+                        sceneModel: _scenes[index],
+
+                        onPlay: () {
+                          final isActive = _activeScenes.contains(index);
+                          setState(() {
+                            if (isActive) {
+                              _activeScenes.remove(index);
+                            } else {
+                              _activeScenes.add(index);
+                            }
+                          });
+                          MqttServices().publish(
+                            'office/room/${widget.roomModel.id}/scenes/${_scenes[index].name}/command',
+                            isActive ? 'OFF' : 'ON',
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Devices',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              ),
+              SizedBox(height: 16),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                   childAspectRatio: 1,
                 ),
-                itemCount: widget.roomModel.devices?.length ?? 0,
+                itemCount: _devices.length,
                 itemBuilder: (context, index) {
                   return DeviceCard(
-                    device: widget.roomModel.devices![index],
-                    isOn:
-                        _deviceStates[widget.roomModel.devices![index].type] ??
-                        widget.roomModel.devices![index].isOn,
+                    device: _devices[index],
+                    isOn: _deviceStates[_devices[index].type] ?? false,
                     onToggle: (bool value) {
+                      print(
+                        'Toggle pressed: ${_devices[index].type.name} → $value',
+                      );
                       setState(() {
-                        _deviceStates[widget.roomModel.devices![index].type] =
-                            value;
+                        _deviceStates[_devices[index].type] = value;
                         MqttServices().publish(
-                          'office/room/${widget.roomModel.id}/devices/${widget.roomModel.devices![index].type.toString().split('.').last}/command',
+                          'office/room/${widget.roomModel.id}/devices/${_devices[index].type.name}/command',
                           value ? 'ON' : 'OFF',
                         );
                       });
@@ -136,8 +230,8 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -6,7 +6,6 @@ import 'package:office_application/features/rooms/presentation/screens/roomDetai
 class RoomSummaryWidget extends StatefulWidget {
   RoomSummaryWidget({super.key, required this.roomModel});
   final RoomModel roomModel;
-
   @override
   State<RoomSummaryWidget> createState() => _RoomSummaryWidgetState();
 }
@@ -16,7 +15,7 @@ class _RoomSummaryWidgetState extends State<RoomSummaryWidget> {
   @override
   void initState() {
     MqttServices().subscribe(
-      'office/room/${widget.roomModel.id}/${widget.roomModel.temperature}}',
+      'office/room/${widget.roomModel.id}/sensors/temperature',
       (payload) {
         if (mounted) {
           setState(() {

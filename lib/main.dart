@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:office_application/core/services/mqtt_service.dart';
+import 'package:office_application/features/Energy/presentation/screens/energy_screen.dart';
+import 'package:office_application/features/authentications/presentation/screens/login_screen.dart';
 import 'package:office_application/features/dashboard/presentation/screens/home_screen.dart';
 import 'package:office_application/features/rooms/presentation/screens/rooms_screen.dart';
+import 'package:office_application/features/scenes/presentation/screens/senes_screen.dart';
+import 'package:office_application/features/schedules/schedule_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: 'https://qwooepccesesqfqtjzib.supabase.co',
+    anonKey: 'sb_publishable_ZAIc76Ga8utlobNjsjLqoQ_NYwUJuvB',
+  );
   await MqttServices().connect();
   runApp(const MyApp());
 }
@@ -17,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: MainShell(),
+      home: LoginScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -25,7 +35,6 @@ class MyApp extends StatelessWidget {
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
-
   @override
   State<MainShell> createState() => _MainShellState();
 }
@@ -33,7 +42,13 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [HomeScreen(), RoomsScreen()];
+  final List<Widget> _screens = [
+    HomeScreen(),
+    RoomsScreen(),
+    EnergyScreen(),
+    SenesScreen(),
+    ScheduleScreen(),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,22 +77,21 @@ class _MainShellState extends State<MainShell> {
               activeIcon: Icon(Icons.grid_view),
               label: 'Rooms',
             ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.photo),
-            //   activeIcon: Icon(Icons.photo),
-            //   label: 'Scenes',
-            // ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.energy_savings_leaf),
-            //   activeIcon: Icon(Icons.energy_savings_leaf),
-            //   label: 'Energy',
-            // ),
-
-            // BottomNavigationBarItem(
-            //   icon: Icon(Icons.schedule),
-            //   activeIcon: Icon(Icons.schedule),
-            //   label: 'Schedual',
-            // ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bolt),
+              activeIcon: Icon(Icons.bolt),
+              label: 'Energy',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.layers),
+              activeIcon: Icon(Icons.layers),
+              label: 'Scenes',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.schedule),
+              activeIcon: Icon(Icons.schedule),
+              label: 'Schedual',
+            ),
           ],
         ),
       ),

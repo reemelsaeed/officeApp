@@ -43,19 +43,19 @@ class DeviceCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xff4F8EF7).withOpacity(.1), // dark background
+              color: const Color(0xff4F8EF7).withOpacity(.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               _getIcon(device.type),
-              color: const Color(0xff4FC3F7), // neon blue
+              color: const Color(0xff4FC3F7),
               size: 22,
             ),
           ),
           SizedBox(height: 10),
           Row(
             children: [
-              Text(device.name),
+              Expanded(child: Text(device.name)),
               Spacer(),
               Switch(
                 value: isOn,

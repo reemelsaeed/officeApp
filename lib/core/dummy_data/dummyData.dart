@@ -4,9 +4,9 @@ import 'package:office_application/features/rooms/data/models/room_model.dart';
 ///////rooms//////
 List<RoomModel> allRooms = [
   RoomModel(
-    id: 1,
-    name: 'Meeting Room 1',
-    temperature: 22,
+    id: 5,
+    name: 'Head Office 1',
+    //temperature: 22,
     status: room_state.available,
     sensors: [
       SensorModel(
@@ -38,28 +38,155 @@ List<RoomModel> allRooms = [
         unit: '',
       ),
     ],
-    devices: [
-      DeviceModel(id: 1, name: 'AC', type: DeviceType.ac, isOn: true),
-      DeviceModel(
-        id: 1,
-        name: 'curtains',
-        type: DeviceType.curtains,
-        isOn: true,
+  ),
+  ////////////////////////////////////////////////////////////////////////////////
+  RoomModel(
+    id: 6,
+    name: 'Head office 2',
+    //temperature: 22,
+    status: room_state.available,
+    sensors: [
+      SensorModel(
+        id: 's1',
+        name: 'Temperature',
+        type: SensorType.temperature,
+        value: 23,
+        unit: '°C',
       ),
-      DeviceModel(id: 1, name: 'Light', type: DeviceType.light, isOn: true),
-      DeviceModel(
-        id: 1,
-        name: 'projector',
-        type: DeviceType.projector,
-        isOn: true,
+      SensorModel(
+        id: 's3',
+        name: 'Occupancy',
+        type: SensorType.occupancy,
+        value: 8,
+        unit: '',
+      ),
+      SensorModel(
+        id: 's4',
+        name: 'Door',
+        type: SensorType.door,
+        value: 1,
+        unit: '',
       ),
     ],
   ),
+  ///////////////////////////////////////////////////////////////////////////////////
+  RoomModel(
+    id: 7,
+    name: 'Head Office 3',
+    //temperature: 22,
+    status: room_state.available,
+    sensors: [
+      SensorModel(
+        id: 's1',
+        name: 'Temperature',
+        type: SensorType.temperature,
+        value: 23,
+        unit: '°C',
+      ),
+      SensorModel(
+        id: 's2',
+        name: 'CO2',
+        type: SensorType.co2,
+        value: 520,
+        unit: 'ppm',
+      ),
+      SensorModel(
+        id: 's3',
+        name: 'Occupancy',
+        type: SensorType.occupancy,
+        value: 8,
+        unit: '',
+      ),
+      SensorModel(
+        id: 's4',
+        name: 'Door',
+        type: SensorType.door,
+        value: 1,
+        unit: '',
+      ),
+    ],
+  ),
+
+  ///
+  RoomModel(
+    id: 1,
+    name: 'Meeting Room 1',
+    //temperature: 22,
+    status: room_state.available,
+    sensors: [
+      SensorModel(
+        id: 's1',
+        name: 'Temperature',
+        type: SensorType.temperature,
+        value: 23,
+        unit: '°C',
+      ),
+      SensorModel(
+        id: 's2',
+        name: 'CO2',
+        type: SensorType.co2,
+        value: 520,
+        unit: 'ppm',
+      ),
+      SensorModel(
+        id: 's3',
+        name: 'Occupancy',
+        type: SensorType.occupancy,
+        value: 8,
+        unit: '',
+      ),
+      SensorModel(
+        id: 's4',
+        name: 'Door',
+        type: SensorType.door,
+        value: 1,
+        unit: '',
+      ),
+    ],
+  ),
+  ///////////////////////////////////////////////////////////////////////////////////////
+  RoomModel(
+    id: 8,
+    name: 'Head Office 4',
+    //temperature: 22,
+    status: room_state.available,
+    sensors: [
+      SensorModel(
+        id: 's1',
+        name: 'Temperature',
+        type: SensorType.temperature,
+        value: 23,
+        unit: '°C',
+      ),
+      SensorModel(
+        id: 's2',
+        name: 'CO2',
+        type: SensorType.co2,
+        value: 520,
+        unit: 'ppm',
+      ),
+      SensorModel(
+        id: 's3',
+        name: 'Occupancy',
+        type: SensorType.occupancy,
+        value: 8,
+        unit: '',
+      ),
+      SensorModel(
+        id: 's4',
+        name: 'Door',
+        type: SensorType.door,
+        value: 1,
+        unit: '',
+      ),
+    ],
+  ),
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   RoomModel(
     id: 2,
     name: 'Meeting Room 2',
-    temperature: 23,
+    //temperature: 23,
     status: room_state.Occupied,
     sensors: [
       SensorModel(
@@ -96,7 +223,7 @@ List<RoomModel> allRooms = [
   RoomModel(
     id: 3,
     name: 'Kitchen',
-    temperature: 23,
+    //temperature: 23,
     status: room_state.Occupied,
     sensors: [
       SensorModel(
@@ -140,31 +267,7 @@ List<RoomModel> allRooms = [
   RoomModel(
     id: 4,
     name: 'Office 1',
-    temperature: 20,
+    //temperature: 20,
     status: room_state.available,
-    devices: [
-      DeviceModel(id: 1, name: 'AC', type: DeviceType.ac, isOn: true),
-      DeviceModel(
-        id: 1,
-        name: 'curtains',
-        type: DeviceType.curtains,
-        isOn: true,
-      ),
-      DeviceModel(id: 1, name: 'Light', type: DeviceType.light, isOn: true),
-      DeviceModel(
-        id: 1,
-        name: 'projector',
-        type: DeviceType.projector,
-        isOn: true,
-      ),
-    ],
   ),
-];
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-List<DeviceModel> allDevices = [
-  DeviceModel(id: 1, name: 'AC', type: DeviceType.ac, isOn: true),
-  DeviceModel(id: 1, name: 'curtains', type: DeviceType.curtains, isOn: true),
-  DeviceModel(id: 1, name: 'Light', type: DeviceType.light, isOn: true),
-  DeviceModel(id: 1, name: 'projector', type: DeviceType.projector, isOn: true),
-  DeviceModel(id: 1, name: 'socket', type: DeviceType.socket, isOn: true),
 ];

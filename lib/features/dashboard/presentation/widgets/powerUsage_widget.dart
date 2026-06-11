@@ -15,7 +15,7 @@ class PowerusageWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.bolt, color: Colors.yellow, size: 20),
+          Icon(Icons.bolt, color: Color.fromARGB(255, 234, 180, 1), size: 20),
           SizedBox(width: 8),
           Text(
             'Power Usage',
