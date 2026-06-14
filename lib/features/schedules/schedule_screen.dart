@@ -21,7 +21,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void initState() {
     super.initState();
     loadSchedules();
-    _subscribeToSchedules();
   }
 
   Future<void> loadSchedules() async {
@@ -32,6 +31,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         _scheduleStates[s.id] = s.isActive;
       }
     });
+    _subscribeToSchedules();
   }
 
   void _subscribeToSchedules() {
@@ -73,13 +73,34 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     });
                   },
                   isOn: _scheduleStates[allSchedules[index].id] ?? false,
+                  deletSchedule: () async {
+                    await ScheduleServices().deleteSchedule(
+                      allSchedules[index].id,
+                    );
+                    loadSchedules();
+                    setState(() {});
+                  },
+
+                  editSchedule: () async {
+                    await showModalBottomSheet(
+                      backgroundColor: Colors.white,
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (context) =>
+                          AddScheduleSheet(editSchedule: allSchedules[index]),
+                    );
+                    loadSchedules();
+                  },
                 ),
               ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xff1877F2),
+        foregroundColor: Colors.white,
         onPressed: () async {
           await showModalBottomSheet(
             backgroundColor: Colors.white,
+
             isScrollControlled: true,
             context: context,
             builder: (context) => AddScheduleSheet(),
@@ -94,8 +115,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
 // ─────────────────────────────────────────
 class AddScheduleSheet extends StatefulWidget {
-  const AddScheduleSheet({super.key});
-
+  AddScheduleSheet({super.key, this.editSchedule});
+  ScheduleModel? editSchedule;
   @override
   State<AddScheduleSheet> createState() => _AddScheduleSheetState();
 }
@@ -116,6 +137,15 @@ class _AddScheduleSheetState extends State<AddScheduleSheet> {
   void initState() {
     super.initState();
     _loadRooms();
+    if (widget.editSchedule != null) {
+      final parts = widget.editSchedule!.time.split(':');
+      selectedTime = TimeOfDay(
+        hour: int.parse(parts[0]),
+        minute: int.parse(parts[1]),
+      );
+      everyDay = widget.editSchedule!.repeatRule == 'everyday';
+      if (!everyDay) selectedDays = widget.editSchedule!.repeatRule.split(',');
+    }
   }
 
   void _loadRooms() async {
@@ -276,28 +306,7 @@ class _AddScheduleSheetState extends State<AddScheduleSheet> {
                 }).toList(),
               ),
             ],
-            SizedBox(height: 16),
-            // ⑤ State ON/OFF
-            // Row(
-            //   children: [
-            //     Text('State', style: TextStyle(fontWeight: FontWeight.w600)),
-            //     Spacer(),
-            //     Switch(
-            //       value: isOn,
-            //       onChanged: (value) => setState(() => isOn = value),
-            //       activeTrackColor: Color(0xff1877F2),
-            //       activeColor: Colors.white,
-            //     ),
-            //     SizedBox(width: 8),
-            //     Text(
-            //       isOn ? 'ON' : 'OFF',
-            //       style: TextStyle(
-            //         fontWeight: FontWeight.w600,
-            //         color: isOn ? Color(0xff1877F2) : Colors.grey,
-            //       ),
-            //     ),
-            //   ],
-            // ),
+
             SizedBox(height: 24),
 
             // ⑥ Save Button
@@ -317,22 +326,47 @@ class _AddScheduleSheetState extends State<AddScheduleSheet> {
                       selectedDevice == null ||
                       selectedTime == null)
                     return;
+                  if (widget.editSchedule != null) {
+                    ScheduleServices().editSchedule(
+                      widget.editSchedule!.id,
+                      ScheduleModel(
+                        id: widget.editSchedule!.id,
+                        time:
+                            '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}',
+                        repeatRule: everyDay
+                            ? 'everyday'
+                            : selectedDays.join(','),
+                        deviceId:
+                            selectedDevice?.id ?? widget.editSchedule!.deviceId,
+                        deviceName:
+                            selectedDevice?.name ??
+                            widget.editSchedule!.deviceName,
+                        roomId: selectedRoom?.id ?? widget.editSchedule!.roomId,
+                        roomName:
+                            selectedRoom?.name ?? widget.editSchedule!.roomName,
+                        state: isOn ? 'ON' : 'OFF',
+                        isActive: true,
+                      ),
+                    );
+                  } else {
+                    ScheduleServices().addSchedule(
+                      ScheduleModel(
+                        id: 0,
+                        time:
+                            '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}',
+                        repeatRule: everyDay
+                            ? 'everyday'
+                            : selectedDays.join(','),
+                        deviceId: selectedDevice!.id,
+                        deviceName: selectedDevice!.name,
+                        roomId: selectedRoom!.id,
+                        state: isOn ? 'ON' : 'OFF',
+                        isActive: true,
+                        roomName: selectedRoom!.name,
+                      ),
+                    );
+                  }
 
-                  ScheduleServices().addSchedule(
-                    ScheduleModel(
-                      id: 0,
-                      time:
-                          '${selectedTime!.hour}:${selectedTime!.minute.toString().padLeft(2, '0')}',
-                      repeatRule: everyDay
-                          ? 'everyday'
-                          : selectedDays.join(','),
-                      deviceId: selectedDevice!.id,
-                      deviceName: selectedDevice!.name,
-                      roomId: selectedRoom!.id,
-                      state: isOn ? 'ON' : 'OFF',
-                      isActive: true,
-                    ),
-                  );
                   Navigator.pop(context);
                 },
                 child: Text('Save Schedule'),

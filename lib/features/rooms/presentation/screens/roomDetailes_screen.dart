@@ -18,7 +18,7 @@ class RoomdetailesScreen extends StatefulWidget {
 class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
   List<bool> devicesState = [];
   Map<SensorType, String> _sensorValues = {};
-  Map<DeviceType, bool> _deviceStates = {};
+  Map<int, bool> _deviceStates = {};
   List<DeviceModel> _devices = [];
   List<SceneModel> _scenes = [];
   Set<int> _activeScenes = {};
@@ -40,12 +40,12 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
           }
         },
       );
-      // final cached = MqttServices().getCachedValue(
-      //   'office/room/${widget.roomModel.id}/sensors/${sensor.type.toString().split('.').last}',
-      // );
-      // if (cached != null) {
-      //   _sensorValues[sensor.type] = cached;
-      // }
+      final cached = MqttServices().getCachedValue(
+        'office/room/${widget.roomModel.id}/sensors/${sensor.type.toString().split('.').last}',
+      );
+      if (cached != null) {
+        _sensorValues[sensor.type] = cached;
+      }
     }
     //////////////////////////////////////////////////////////
     // subscribe for devices//
@@ -55,7 +55,7 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
         (payload) {
           if (mounted) {
             setState(() {
-              _deviceStates[device.type] = payload == 'ON';
+              _deviceStates[device.id] = payload == 'ON';
             });
           }
         },
@@ -64,7 +64,7 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
         'office/room/${widget.roomModel.id}/devices/${device.type.toString().split('.').last}/state',
       );
       if (cached != null) {
-        _deviceStates[device.type] = cached == 'ON';
+        _deviceStates[device.id] = cached == 'ON';
       }
     }
     /////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
         (payload) {
           if (mounted) {
             setState(() {
-              _deviceStates[device.type] = payload == 'ON';
+              _deviceStates[device.id] = payload == 'ON';
             });
           }
         },
@@ -92,7 +92,7 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
       );
       if (cached != null && mounted) {
         setState(() {
-          _deviceStates[device.type] = cached == 'ON';
+          _deviceStates[device.id] = cached == 'ON';
         });
       }
     }
@@ -121,25 +121,25 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Spacer(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-              decoration: BoxDecoration(
-                color: widget.roomModel.status == room_state.Occupied
-                    ? Color(0xffFEF3C7)
-                    : Color(0xffD1FAE5),
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Text(
-                widget.roomModel.status.name,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: widget.roomModel.status == room_state.Occupied
-                      ? Color(0xff92400E)
-                      : Color(0xff065F46),
-                ),
-              ),
-            ),
+            // Container(
+            //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            //   decoration: BoxDecoration(
+            //     color: widget.roomModel.status == room_state.Occupied
+            //         ? Color(0xffFEF3C7)
+            //         : Color(0xffD1FAE5),
+            //     borderRadius: BorderRadius.circular(100),
+            //   ),
+            //   child: Text(
+            //     widget.roomModel.status.name,
+            //     style: TextStyle(
+            //       fontSize: 11,
+            //       fontWeight: FontWeight.w500,
+            //       color: widget.roomModel.status == room_state.Occupied
+            //           ? Color(0xff92400E)
+            //           : Color(0xff065F46),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -159,77 +159,78 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
                 sensorValues: _sensorValues,
               ),
               SizedBox(height: 16),
-              Text(
-                'Quick Scenes',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _scenes.length,
+              if (_scenes.isNotEmpty) ...[
+                Text(
+                  'Quick Scenes',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _scenes.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: ScenesWidget(
+                          sceneModel: _scenes[index],
 
+                          onPlay: () {
+                            final isActive = _activeScenes.contains(index);
+                            setState(() {
+                              if (isActive) {
+                                _activeScenes.remove(index);
+                              } else {
+                                _activeScenes.add(index);
+                              }
+                            });
+                            MqttServices().publish(
+                              'office/room/${widget.roomModel.id}/scenes/${_scenes[index].name}/command',
+                              isActive ? 'OFF' : 'ON',
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                SizedBox(height: 16),
+              ],
+
+              if (_scenes.isNotEmpty) ...[
+                Text(
+                  'Devices',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 16),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: _devices.length,
                   itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: ScenesWidget(
-                        sceneModel: _scenes[index],
-
-                        onPlay: () {
-                          final isActive = _activeScenes.contains(index);
-                          setState(() {
-                            if (isActive) {
-                              _activeScenes.remove(index);
-                            } else {
-                              _activeScenes.add(index);
-                            }
-                          });
+                    return DeviceCard(
+                      device: _devices[index],
+                      isOn: _deviceStates[_devices[index].id] ?? false,
+                      onToggle: (bool value) {
+                        setState(() {
+                          _deviceStates[_devices[index].id] = value;
                           MqttServices().publish(
-                            'office/room/${widget.roomModel.id}/scenes/${_scenes[index].name}/command',
-                            isActive ? 'OFF' : 'ON',
+                            'office/room/${widget.roomModel.id}/devices/${_devices[index].type.name}/command',
+                            value ? 'ON' : 'OFF',
                           );
-                        },
-                      ),
+                        });
+                      },
                     );
                   },
                 ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Devices',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(height: 16),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1,
-                ),
-                itemCount: _devices.length,
-                itemBuilder: (context, index) {
-                  return DeviceCard(
-                    device: _devices[index],
-                    isOn: _deviceStates[_devices[index].type] ?? false,
-                    onToggle: (bool value) {
-                      print(
-                        'Toggle pressed: ${_devices[index].type.name} → $value',
-                      );
-                      setState(() {
-                        _deviceStates[_devices[index].type] = value;
-                        MqttServices().publish(
-                          'office/room/${widget.roomModel.id}/devices/${_devices[index].type.name}/command',
-                          value ? 'ON' : 'OFF',
-                        );
-                      });
-                    },
-                  );
-                },
-              ),
+              ],
             ],
           ),
         ),

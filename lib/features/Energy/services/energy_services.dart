@@ -8,19 +8,22 @@ class EnergyServices {
     await supabase.from('energy_readings').insert(reading.toMap());
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   Future<double> getTodayTotal() async {
-    final today = DateTime.now().toUtc();
-    final startOfDay = DateTime.utc(today.year, today.month, today.day);
+    final today = DateTime.now();
+    final startOfDay = DateTime(today.year, today.month, today.day);
 
-    final data = await supabase
+    final response = await supabase
         .from('energy_readings')
-        .select('power')
+        .select('kwh')
         .gte('created_at', startOfDay.toIso8601String());
 
-    if (data.isEmpty) return 0;
-
-    return data
-        .map((row) => (row['power'] as num).toDouble())
-        .reduce((a, b) => a + b);
+    double total = 0;
+    for (var row in response) {
+      total += (row['kwh'] as num).toDouble();
+    }
+    return total;
   }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////
 }

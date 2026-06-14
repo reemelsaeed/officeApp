@@ -7,7 +7,7 @@ class WidgetModels extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: BoxDecoration(
         color: const Color(0xFF1877F2),
         borderRadius: BorderRadius.circular(12),
@@ -27,26 +27,25 @@ class WidgetModels extends StatelessWidget {
                 child: const Icon(
                   Icons.bolt,
                   color: Color.fromARGB(255, 234, 180, 1),
-                  size: 25,
+                  size: 23,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: Color.fromARGB(255, 255, 255, 255),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           Text(
             value,
-
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),

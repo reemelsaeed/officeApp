@@ -58,25 +58,25 @@ class _RoomSummaryWidgetState extends State<RoomSummaryWidget> {
                 ),
                 Spacer(),
                 ////////////////////////will be from Esp//////////////////////////
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: widget.roomModel.status == room_state.Occupied
-                        ? Color(0xffFEF3C7)
-                        : Color(0xffD1FAE5),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Text(
-                    widget.roomModel.status.name,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: widget.roomModel.status == room_state.Occupied
-                          ? Color(0xff92400E)
-                          : Color(0xff065F46),
-                    ),
-                  ),
-                ),
+                // Container(
+                //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                //   decoration: BoxDecoration(
+                //     color: widget.roomModel.status == room_state.Occupied
+                //         ? Color(0xffFEF3C7)
+                //         : Color(0xffD1FAE5),
+                //     borderRadius: BorderRadius.circular(100),
+                //   ),
+                //   child: Text(
+                //     widget.roomModel.status!.name ?? '',
+                //     style: TextStyle(
+                //       fontSize: 11,
+                //       fontWeight: FontWeight.w500,
+                //       color: widget.roomModel.status == room_state.Occupied
+                //           ? Color(0xff92400E)
+                //           : Color(0xff065F46),
+                //     ),
+                //   ),
+                // ),
                 ////////////////////////////////////////////////////////////////////
               ],
             ),
@@ -84,11 +84,11 @@ class _RoomSummaryWidgetState extends State<RoomSummaryWidget> {
             ////////////////////////////will be from ESP///////////////////////////////////
             Row(
               children: [
-                Icon(Icons.thermostat, size: 14, color: Colors.grey),
+                Icon(Icons.thermostat, size: 14, color: Color(0xff1877F2)),
                 SizedBox(width: 4),
                 Text(
                   temp.toString(),
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                  style: TextStyle(fontSize: 13, color: Color(0xff1877F2)),
                 ),
               ],
             ),

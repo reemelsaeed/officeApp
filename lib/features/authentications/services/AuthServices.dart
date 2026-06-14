@@ -57,9 +57,9 @@ class Authservices {
 
   ///////////////////////////////////////////////////////////
   ///getAllUsers
-  Future<List<UserModel>> getAllUsers() async {
-    final data = await supabase.from('users_profile').select();
-    return data.map((map) => UserModel.fromMap(map)).toList();
+  Future<List<Map<String, dynamic>>> getAllUsers() async {
+    //final data = await supabase.from('users_profile').select();
+    return await supabase.from('users_profile').select();
   }
 
   /////////////////////////////////////////////////

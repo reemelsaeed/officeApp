@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:office_application/core/services/mqtt_service.dart';
 import 'package:office_application/features/Energy/presentation/screens/energy_screen.dart';
-import 'package:office_application/features/authentications/presentation/screens/login_screen.dart';
 import 'package:office_application/features/dashboard/presentation/screens/home_screen.dart';
 import 'package:office_application/features/rooms/presentation/screens/rooms_screen.dart';
 import 'package:office_application/features/scenes/presentation/screens/senes_screen.dart';
@@ -10,7 +9,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Supabase.initialize(
     url: 'https://qwooepccesesqfqtjzib.supabase.co',
     anonKey: 'sb_publishable_ZAIc76Ga8utlobNjsjLqoQ_NYwUJuvB',
@@ -27,21 +25,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: LoginScreen(),
+      home: MainShell(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
+/////////////////////////////////////////////////////////////////
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
+
   @override
   State<MainShell> createState() => _MainShellState();
 }
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
-
   final List<Widget> _screens = [
     HomeScreen(),
     RoomsScreen(),

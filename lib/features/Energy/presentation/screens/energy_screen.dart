@@ -17,9 +17,11 @@ class EnergyScreen extends StatefulWidget {
 class _EnergyScreenState extends State<EnergyScreen> {
   double allPower = 0;
   double curr_power = 0;
-  //double today_kwh = 0;
+  double today_kwh = 0;
   Map<int, double> room_power = {};
+  Map<int, DateTime> lastReadingTime = {};
   List<RoomModel> rooms = [];
+  DateTime? lastTime;
   ///////////////////////////////////////////////////
   ///GET ROOMS
   void _loadRooms() async {
@@ -33,18 +35,35 @@ class _EnergyScreenState extends State<EnergyScreen> {
       MqttServices().subscribe('office/room/${room.id}/power', (payload) {
         if (mounted) {
           final newPower = double.parse(payload);
+          final now = DateTime.now();
+
+          // double hoursDiff = 0;
+          // if (lastReadingTime.containsKey(room.id)) {
+          //   hoursDiff =
+          //       now.difference(lastReadingTime[room.id]!).inMilliseconds /
+          //       3600000;
+          // }
+          ///basedon allpower
+          double hoursDiff = 0;
+          if (lastTime != null) {
+            hoursDiff = now.difference(lastTime!).inMilliseconds / 3600000;
+          }
+          final kwhIncrement = newPower * hoursDiff;
+          lastReadingTime[room.id] = now;
           setState(() {
             room.powerKwh = newPower;
             curr_power = rooms
                 .map((r) => r.powerKwh ?? 0)
                 .reduce((a, b) => a + b);
+            today_kwh += kwhIncrement;
           });
+
           EnergyServices().saveReading(
             EnergyReading(
               roomId: room.id,
               roomName: room.name,
               power: newPower,
-              kwh: newPower,
+              kwh: kwhIncrement,
             ),
           );
         }
@@ -55,8 +74,8 @@ class _EnergyScreenState extends State<EnergyScreen> {
   ///////////////////////////////////////////
   //subscribe in power of all office
   void subscribeAllpower() async {
-    await MqttServices().subscribe('office/power', (payload) {
-      if (mounted) return;
+    await MqttServices().subscribe('office/home/power', (payload) {
+      if (!mounted) return;
       setState(() {
         allPower = double.parse(payload);
       });
@@ -64,11 +83,11 @@ class _EnergyScreenState extends State<EnergyScreen> {
   }
 
   ////////////////////////////////////////////////////////////////////////////
-  // void _loadTodayKwh() async {
-  //   final total = await EnergyServices().getTodayTotal();
-  //   if (!mounted) return;
-  //   setState(() => today_kwh = total);
-  // }
+  void _loadTodayKwh() async {
+    final total = await EnergyServices().getTodayTotal();
+    if (!mounted) return;
+    setState(() => today_kwh = total);
+  }
 
   /////////////////////////////////////////////////////////////////////
   @override
@@ -76,7 +95,6 @@ class _EnergyScreenState extends State<EnergyScreen> {
     //currPowerSubscribe();
     _loadRooms();
     subscribeAllpower();
-    //_loadTodayKwh();
     super.initState();
   }
 
@@ -98,12 +116,19 @@ class _EnergyScreenState extends State<EnergyScreen> {
                   Expanded(
                     child: WidgetModels(
                       label: 'Live power',
-                      ///////////////from ESP//////////////////////
-                      value: '${curr_power.toStringAsFixed(2)}  KWH',
+                      // value: '${curr_power.toStringAsFixed(2)}  KWH',
+                      value: '${allPower.toStringAsFixed(2)}  KWH',
                       //or will be Allpower
                       ////////////////////////////////////////////////////////
                     ),
                   ),
+                  // SizedBox(width: 10),
+                  // Expanded(
+                  //   child: WidgetModels(
+                  //     label: "Today's Usage",
+                  //     value: '${today_kwh.toStringAsFixed(2)}  KWH',
+                  //   ),
+                  // ),
                 ],
               ),
               const SizedBox(height: 20),

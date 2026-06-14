@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:office_application/core/dummy_data/dummyData.dart';
 import 'package:office_application/core/models/models.dart';
 import 'package:office_application/core/services/mqtt_service.dart';
 import 'package:office_application/features/Energy/presentation/widgets/widget_models.dart';
 import 'package:office_application/features/Energy/services/energy_services.dart';
-import 'package:office_application/features/authentications/presentation/screens/user_profile_screen.dart';
-import 'package:office_application/features/dashboard/presentation/widgets/powerUsage_widget.dart';
 import 'package:office_application/features/dashboard/presentation/widgets/room_summary_widget.dart';
 import 'package:office_application/features/notifications/models/alert_model.dart';
 import 'package:office_application/features/notifications/notifications_screen.dart';
@@ -24,6 +23,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   double power = 0;
   List<RoomModel> rooms = [];
+  List<RoomModel> allrooms = [];
+
+  /////topics
+  ///alert : office/alerts
+  ///room device : office/room/5/devices/ac/state
+  ///room sensor : office/room/5/sensors/temperature
+  ///live power : office/home/power
 
   @override
   void initState() {
@@ -33,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     MqttServices().subscribe('office/home/power', (payload) {
       if (mounted) {
         setState(() {
-          power = double.parse(payload);
+          power = double.tryParse(payload) ?? 0;
         });
       }
     });
@@ -42,7 +48,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void loadrooms() async {
     final data = await RoomServices().getAllrooms();
-    rooms = data.map((r) => RoomModel.fromMap(r)).take(5).toList();
+    setState(() {
+      rooms = data
+          .map((map) {
+            final dummyRoom = allRooms.firstWhere(
+              (r) => r.id == map['id'],
+              orElse: () => RoomModel(
+                id: map['id'],
+                name: map['name'],
+                status: room_state.available,
+              ),
+            );
+
+            return RoomModel(
+              id: map['id'],
+              name: map['name'],
+              status: room_state.available,
+              sensors: dummyRoom.sensors,
+            );
+          })
+          .take(4)
+          .toList();
+    });
     for (final room in rooms) {
       MqttServices().subscribe('office/room/${room.id}/power', (payload) {
         if (mounted) {
@@ -69,7 +96,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final data = await AlertServices().getAllalerts();
     if (!mounted) return;
     setState(() {
-      alerts = data.map((map) => AlertModel.fromMap(map)).take(3).toList();
+      alerts = data
+          .map((map) => AlertModel.fromMap(map))
+          .toList()
+          .reversed
+          .take(3)
+          .toList();
     });
     MqttServices().subscribe('office/alerts', (payload) async {
       final newAlert = AlertModel(
@@ -92,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'Welcome User',
+          'Welcome !',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -100,21 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UserProfileScreen()),
-            ),
-            child: Container(
-              margin: EdgeInsets.only(right: 8),
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(Icons.person, size: 20, color: Color(0xFF1877F2)),
-            ),
-          ),
           GestureDetector(
             onTap: () => Navigator.push(
               context,
@@ -178,7 +195,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 8),
+              alerts.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No alerts yet',
+                        style: TextStyle(fontSize: 13, color: Colors.grey),
+                      ),
+                    )
+                  : SizedBox(height: 8),
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),

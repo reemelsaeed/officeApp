@@ -57,29 +57,29 @@ class MqttServices {
       }
     });
 
-    await Future.delayed(Duration(milliseconds: 500));
-    _clearPowerRetained();
+    // await Future.delayed(Duration(milliseconds: 500));
+    // _clearPowerRetained();
   }
 
-  void _clearPowerRetained() {
-    for (int i = 1; i <= 10; i++) {
-      final builder = MqttClientPayloadBuilder();
-      builder.addString('');
-      _client.publishMessage(
-        'office/room/$i/power',
-        MqttQos.atLeastOnce,
-        builder.payload!,
-        retain: true,
-      );
-    }
-    final builder = MqttClientPayloadBuilder();
-    builder.addString('');
-    _client.publishMessage(
-      'office/home/power',
-      MqttQos.atLeastOnce,
-      builder.payload!,
-    );
-  }
+  // void _clearPowerRetained() {
+  //   for (int i = 1; i <= 10; i++) {
+  //     final builder = MqttClientPayloadBuilder();
+  //     builder.addString('');
+  //     _client.publishMessage(
+  //       'office/room/$i/power',
+  //       MqttQos.atLeastOnce,
+  //       builder.payload!,
+  //       retain: true,
+  //     );
+  //   }
+  //   final builder = MqttClientPayloadBuilder();
+  //   builder.addString('');
+  //   _client.publishMessage(
+  //     'office/home/power',
+  //     MqttQos.atLeastOnce,
+  //     builder.payload!,
+  //   );
+  // }
 
   Future<void> subscribe(String topic, Function(String) onMessage) async {
     _listeners[topic] ??= [];
@@ -106,15 +106,4 @@ class MqttServices {
   //////////////////////for saving values from broker/////////////////////////////////
 
   String? getCachedValue(String topic) => _cachedValues[topic];
-
-  /////////////////////////////////////////////////////////////////////////////
-  ///
-  Future<void> subscribeLive(String topic, Function(String) onMessage) async {
-    _listeners[topic] ??= [];
-    if (!_listeners[topic]!.contains(onMessage)) {
-      _listeners[topic]!.add(onMessage);
-    }
-    await _ensureConnected();
-    _client.subscribe(topic, MqttQos.atLeastOnce);
-  }
 }

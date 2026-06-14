@@ -32,6 +32,14 @@ class HeaderWidget extends StatelessWidget {
           return Icons.water_drop_outlined;
         case SensorType.humidity:
           return Icons.water_outlined;
+        case SensorType.Switch:
+          return Icons.switch_access_shortcut;
+        case SensorType.router:
+          return Icons.router;
+        case SensorType.gateway:
+          return Icons.router;
+        case SensorType.Usb:
+          return Icons.usb_sharp;
         default:
           return Icons.sensors;
       }
@@ -67,7 +75,13 @@ class HeaderWidget extends StatelessWidget {
               ),
               SizedBox(height: 4),
               Text(
-                sensor.type == SensorType.door
+                sensor.type == SensorType.gateway
+                    ? (sensorValues[sensor.type] == '1' ? 'online' : 'offline')
+                    : sensor.type == SensorType.router
+                    ? (sensorValues[sensor.type] == '1' ? 'online' : 'offline')
+                    : sensor.type == SensorType.Switch
+                    ? (sensorValues[sensor.type] == '1' ? 'online' : 'offline')
+                    : sensor.type == SensorType.door
                     ? (sensorValues[sensor.type] == '1' ? 'Locked' : 'Open')
                     : '${sensorValues[sensor.type] ?? '--'}${sensor.unit}',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),

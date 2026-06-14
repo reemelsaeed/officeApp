@@ -24,7 +24,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final data = await AlertServices().getAllalerts();
     if (!mounted) return;
     setState(() {
-      alerts = data.map((map) => AlertModel.fromMap(map)).toList();
+      alerts = data
+          .map((map) => AlertModel.fromMap(map))
+          .toList()
+          .reversed
+          .toList();
     });
     MqttServices().subscribe('office/alerts', (payload) async {
       final newAlert = AlertModel(

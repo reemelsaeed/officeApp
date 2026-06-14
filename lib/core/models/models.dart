@@ -44,6 +44,11 @@ enum SensorType {
   motion,
   noise,
   energy,
+  gateway,
+  router,
+  networkSwitch,
+  Usb,
+  Switch,
 }
 
 class SensorModel {
@@ -106,6 +111,7 @@ class ScheduleModel {
   bool isActive;
   String deviceName;
   int roomId;
+  String roomName;
 
   ScheduleModel({
     required this.id,
@@ -116,6 +122,7 @@ class ScheduleModel {
     required this.isActive,
     required this.deviceName,
     required this.roomId,
+    required this.roomName,
   });
   factory ScheduleModel.fromMap(Map<String, dynamic> map) {
     return ScheduleModel(
@@ -127,6 +134,7 @@ class ScheduleModel {
       isActive: map['is_active'],
       deviceName: map['device_name'] ?? '',
       roomId: map['room_id'],
+      roomName: map['rooms']?['name'] ?? '',
     );
   }
 

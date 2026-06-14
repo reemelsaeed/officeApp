@@ -6,7 +6,9 @@ class ScheduleServices {
 
   //////////////////////////get all schedules
   Future<List<Map<String, dynamic>>> getAllSchedules() async {
-    return await supabase.from('Schedules').select();
+    return await supabase
+        .from('Schedules')
+        .select('*, rooms!Schedules_room_id_fkey(name)');
   }
 
   ////////////////////addSchedule///////////////////////////////////
@@ -20,6 +22,12 @@ class ScheduleServices {
     await supabase.from('Schedules').delete().eq('id', id);
   }
 
+  ///////////////////////////////////////////////////
+  Future<void> editSchedule(int id, ScheduleModel schedule) async {
+    await supabase.from('Schedules').update(schedule.toMap()).eq('id', id);
+  }
+
+  ////////////////////////////////////////////
   Future<List<Map<String, dynamic>>> getAllDevices() async {
     return await supabase.from('devices').select();
   }

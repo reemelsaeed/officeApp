@@ -3,7 +3,7 @@ import 'package:office_application/core/models/models.dart';
 class RoomModel {
   int id;
   String name;
-  room_state status;
+  room_state? status;
   List<DeviceModel>? devices;
   List<SensorModel>? sensors;
   double? powerKwh;
