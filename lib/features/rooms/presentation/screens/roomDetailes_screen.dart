@@ -6,6 +6,7 @@ import 'package:office_application/features/rooms/presentation/screens/device_de
 import 'package:office_application/features/rooms/presentation/widgets/deviceCard_widget.dart';
 import 'package:office_application/features/rooms/presentation/widgets/header_widget.dart';
 import 'package:office_application/features/rooms/presentation/widgets/scenes_widget.dart';
+import 'package:office_application/features/rooms/services/device_services.dart';
 import 'package:office_application/features/rooms/services/room_services.dart';
 
 class RoomdetailesScreen extends StatefulWidget {
@@ -202,6 +203,9 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
                       onToggle: (bool value) {
                         setState(() {
                           _deviceStates[_devices[index].id] = value;
+                        });
+                        DeviceServices().updateDevice(_devices[index].id, {
+                          'is_on': value,
                         });
                         MqttServices().publish(
                           'office/room/${widget.roomModel.id}/devices/${_devices[index].type.name}/command',

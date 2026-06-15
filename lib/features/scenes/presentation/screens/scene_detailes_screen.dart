@@ -3,6 +3,7 @@ import 'package:office_application/core/models/models.dart';
 import 'package:office_application/core/services/mqtt_service.dart';
 import 'package:office_application/features/rooms/presentation/screens/device_detailes_screen.dart';
 import 'package:office_application/features/rooms/presentation/widgets/deviceCard_widget.dart';
+import 'package:office_application/features/rooms/services/device_services.dart';
 
 class SceneDetailesScreen extends StatefulWidget {
   const SceneDetailesScreen({super.key, required this.scene});
@@ -76,12 +77,16 @@ class _SceneDetailesScreenState extends State<SceneDetailesScreen> {
                     onToggle: (bool value) {
                       setState(() {
                         _deviceStates[devices[index].id] = value;
-
-                        MqttServices().publish(
-                          'office/room/${widget.scene.roomId}/devices/${devices[index].type.toString().split('.').last}/command',
-                          value ? 'ON' : 'OFF',
-                        );
                       });
+
+                      DeviceServices().updateDevice(devices[index].id, {
+                        'is_on': value,
+                      });
+
+                      MqttServices().publish(
+                        'office/room/${widget.scene.roomId}/devices/${devices[index].type.name}/command',
+                        value ? 'ON' : 'OFF',
+                      );
                     },
                     navigate: () async {
                       devices[index].isOn =

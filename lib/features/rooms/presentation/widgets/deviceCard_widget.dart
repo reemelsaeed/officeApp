@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:office_application/core/models/models.dart';
-import 'package:office_application/features/rooms/presentation/screens/device_detailes_screen.dart';
 
 class DeviceCard extends StatelessWidget {
   final DeviceModel device;
@@ -24,7 +23,7 @@ class DeviceCard extends StatelessWidget {
           return Icons.lightbulb_outline;
         case DeviceType.ac:
           return Icons.ac_unit;
-        case DeviceType.curtains:
+        case DeviceType.curtain:
           return Icons.blinds_outlined;
         case DeviceType.projector:
           return Icons.videocam_outlined;

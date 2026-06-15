@@ -3,9 +3,17 @@ import 'package:office_application/core/models/models.dart';
 import 'package:office_application/features/scenes/presentation/screens/scene_detailes_screen.dart';
 
 class SceneCardWidget extends StatelessWidget {
-  const SceneCardWidget({super.key, required this.scene, required this.onPlay});
+  const SceneCardWidget({
+    super.key,
+    required this.scene,
+    required this.onPlay,
+    required this.isActive,
+    required this.isPending,
+  });
   final SceneModel scene;
   final VoidCallback onPlay;
+  final bool isActive;
+  final bool isPending;
 
   IconData get _sceneIcon {
     final name = scene.name.toLowerCase();
@@ -47,7 +55,7 @@ class SceneCardWidget extends StatelessWidget {
               child: Icon(_sceneIcon, size: 20, color: const Color(0xFF1877F2)),
             ),
             const SizedBox(height: 12),
-            // اسم السين
+
             Text(
               scene.name,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
@@ -76,11 +84,20 @@ class SceneCardWidget extends StatelessWidget {
                       color: Color(0xFF1877F2),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.play_arrow,
-                      size: 16,
-                      color: Colors.white,
-                    ),
+                    child: isPending
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Icon(
+                            isActive ? Icons.stop : Icons.play_arrow,
+                            size: 16,
+                            color: Colors.white,
+                          ),
                   ),
                 ),
               ],

@@ -12,6 +12,7 @@ class SenesScreen extends StatefulWidget {
 
 class _SenesScreenState extends State<SenesScreen> {
   List<SceneModel> _scenes = [];
+  Set<int> _pendingScenes = {};
   @override
   void initState() {
     _loadScenes();
@@ -47,14 +48,12 @@ class _SenesScreenState extends State<SenesScreen> {
                 itemBuilder: (context, index) {
                   return SceneCardWidget(
                     scene: _scenes[index],
+                    isActive: _activeScenes.contains(index),
+                    isPending: _pendingScenes.contains(index),
                     onPlay: () {
                       final isActive = _activeScenes.contains(index);
                       setState(() {
-                        if (isActive) {
-                          _activeScenes.remove(index);
-                        } else {
-                          _activeScenes.add(index);
-                        }
+                        _pendingScenes.add(index);
                       });
                       for (final device in _scenes[index].devices) {
                         MqttServices().publish(
@@ -62,6 +61,19 @@ class _SenesScreenState extends State<SenesScreen> {
                           isActive ? 'OFF' : 'ON',
                         );
                       }
+
+                      Future.delayed(Duration(seconds: 3), () {
+                        if (mounted) {
+                          setState(() {
+                            _pendingScenes.remove(index);
+                            if (isActive) {
+                              _activeScenes.remove(index);
+                            } else {
+                              _activeScenes.add(index);
+                            }
+                          });
+                        }
+                      });
                     },
                   );
                 },

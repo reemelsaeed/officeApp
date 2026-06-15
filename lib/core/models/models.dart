@@ -1,4 +1,4 @@
-enum DeviceType { light, ac, curtains, projector, socket }
+enum DeviceType { light, ac, curtain, projector, socket }
 
 enum AcMode { cool, heat, fan, auto }
 

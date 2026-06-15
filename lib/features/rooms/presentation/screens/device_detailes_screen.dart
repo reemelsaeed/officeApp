@@ -107,7 +107,7 @@ class _DeviceDetailesScreenState extends State<DeviceDetailesScreen> {
 
             if (device.type == DeviceType.light) _lightControls(),
             if (device.type == DeviceType.ac) _acControls(),
-            if (device.type == DeviceType.curtains) _curtainControls(),
+            if (device.type == DeviceType.curtain) _curtainControls(),
           ],
         ),
       ),
@@ -121,7 +121,7 @@ class _DeviceDetailesScreenState extends State<DeviceDetailesScreen> {
         return Icons.lightbulb_outline;
       case DeviceType.ac:
         return Icons.ac_unit;
-      case DeviceType.curtains:
+      case DeviceType.curtain:
         return Icons.curtains_closed_outlined;
       case DeviceType.projector:
         return Icons.videocam_outlined;
