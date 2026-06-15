@@ -20,9 +20,30 @@ class _DeviceDetailesScreenState extends State<DeviceDetailesScreen> {
     DeviceServices().updateDevice(device.id, {key: value});
 
     MqttServices().publish(
-      'office/room/${device.roomId}/device/${device.id}/command',
+      'office/room/${device.roomId}/devices/${device.type.name}/command',
       jsonEncode({key: value}),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    MqttServices().subscribe(
+      'office/room/${device.roomId}/devices/${device.type.name}/state',
+      (payload) {
+        if (mounted) {
+          setState(() {
+            device.isOn = payload == 'ON';
+          });
+        }
+      },
+    );
+    // final cached = MqttServices().getCachedValue(
+    //   'office/room/${device.roomId}/devices/${device.type.name}/state',
+    // );
+    // if (cached != null) {
+    //   device.isOn = cached == 'ON';
+    // }
   }
 
   @override
@@ -38,67 +59,7 @@ class _DeviceDetailesScreenState extends State<DeviceDetailesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Color(0xFFF9FAFB),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Color(0xFFE5E7EB)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: device.isOn
-                          ? Colors.blue.shade50
-                          : Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      _iconForType(device.type),
-                      color: device.isOn ? Color(0xFF1877F2) : Colors.grey,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          device.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          device.isOn ? 'ON' : 'OFF',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: device.isOn
-                                ? Color(0xFF1877F2)
-                                : Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Switch(
-                    value: device.isOn,
-                    activeColor: Color(0xFF1877F2),
-                    onChanged: (value) {
-                      setState(() => device.isOn = value);
-                      _updateField('is_on', value);
-                    },
-                  ),
-                ],
-              ),
-            ),
-
             const SizedBox(height: 20),
-
             if (device.type == DeviceType.light) _lightControls(),
             if (device.type == DeviceType.ac) _acControls(),
             if (device.type == DeviceType.curtains) _curtainControls(),

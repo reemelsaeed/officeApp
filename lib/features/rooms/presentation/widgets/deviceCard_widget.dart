@@ -6,12 +6,14 @@ class DeviceCard extends StatelessWidget {
   final DeviceModel device;
   bool isOn;
   final ValueChanged<bool> onToggle;
+  final VoidCallback navigate;
 
   DeviceCard({
     super.key,
     required this.device,
     required this.onToggle,
     required this.isOn,
+    required this.navigate,
   });
 
   @override
@@ -32,12 +34,7 @@ class DeviceCard extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DeviceDetailesScreen(device: device),
-        ),
-      ),
+      onTap: navigate,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(

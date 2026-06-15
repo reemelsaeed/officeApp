@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:office_application/core/models/models.dart';
 import 'package:office_application/core/services/mqtt_service.dart';
+import 'package:office_application/features/rooms/presentation/screens/device_detailes_screen.dart';
 import 'package:office_application/features/rooms/presentation/widgets/deviceCard_widget.dart';
 import 'package:office_application/features/scenes/services/scenes_services.dart';
 
@@ -69,6 +70,20 @@ class _SceneDetailesScreenState extends State<SceneDetailesScreen> {
                           value ? 'ON' : 'OFF',
                         );
                       });
+                    },
+                    navigate: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              DeviceDetailesScreen(device: devices[index]),
+                        ),
+                      );
+                      if (result != null && mounted) {
+                        setState(() {
+                          _deviceStates[devices[index].type] = result;
+                        });
+                      }
                     },
                   );
                 },

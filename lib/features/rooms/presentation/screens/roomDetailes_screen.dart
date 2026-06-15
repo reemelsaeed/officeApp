@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:office_application/core/models/models.dart';
 import 'package:office_application/core/services/mqtt_service.dart';
 import 'package:office_application/features/rooms/data/models/room_model.dart';
+import 'package:office_application/features/rooms/presentation/screens/device_detailes_screen.dart';
 import 'package:office_application/features/rooms/presentation/widgets/deviceCard_widget.dart';
 import 'package:office_application/features/rooms/presentation/widgets/header_widget.dart';
 import 'package:office_application/features/rooms/presentation/widgets/scenes_widget.dart';
@@ -200,7 +201,6 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
                 ),
                 SizedBox(height: 16),
               ],
-
               if (_devices.isNotEmpty) ...[
                 Text(
                   'Devices',
@@ -229,6 +229,20 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
                             value ? 'ON' : 'OFF',
                           );
                         });
+                      },
+                      navigate: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                DeviceDetailesScreen(device: _devices[index]),
+                          ),
+                        );
+                        if (result != null && mounted) {
+                          setState(() {
+                            _deviceStates[_devices[index].id] = result;
+                          });
+                        }
                       },
                     );
                   },
