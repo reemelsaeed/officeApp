@@ -27,10 +27,9 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
   @override
   void initState() {
     super.initState();
-    subscripeForDevices();
+    // subscripeForDevices();
     _loadDevices();
     _loadscenes();
-    // subscribe for sensors//
     for (final sensor in widget.roomModel.sensors ?? []) {
       MqttServices().subscribe(
         'office/room/${widget.roomModel.id}/sensors/${sensor.type.toString().split('.').last}',
@@ -53,27 +52,6 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
     // subscribe for devices//
   }
 
-  void subscripeForDevices() async {
-    for (final device in _devices) {
-      MqttServices().subscribe(
-        'office/room/${widget.roomModel.id}/devices/${device.type.toString().split('.').last}/state',
-        (payload) {
-          if (mounted) {
-            setState(() {
-              _deviceStates[device.id] = payload == 'ON';
-            });
-          }
-        },
-      );
-      final cached = MqttServices().getCachedValue(
-        'office/room/${widget.roomModel.id}/devices/${device.type.toString().split('.').last}/state',
-      );
-      if (cached != null) {
-        _deviceStates[device.id] = cached == 'ON';
-      }
-    }
-  }
-
   void _loadDevices() async {
     final data = await RoomServices().getDevices(widget.roomModel.id);
     if (!mounted) return;
@@ -82,7 +60,7 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
     });
     for (final device in _devices) {
       MqttServices().subscribe(
-        'office/room/${widget.roomModel.id}/devices/${device.type.name}/state',
+        'office/room/${widget.roomModel.id}/devices/${device.type.toString().split('.').last}/state',
         (payload) {
           if (mounted) {
             setState(() {
@@ -224,13 +202,15 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
                       onToggle: (bool value) {
                         setState(() {
                           _deviceStates[_devices[index].id] = value;
-                          MqttServices().publish(
-                            'office/room/${widget.roomModel.id}/devices/${_devices[index].type.name}/command',
-                            value ? 'ON' : 'OFF',
-                          );
                         });
+                        MqttServices().publish(
+                          'office/room/${widget.roomModel.id}/devices/${_devices[index].type.name}/command',
+                          value ? 'ON' : 'OFF',
+                        );
                       },
                       navigate: () async {
+                        _devices[index].isOn =
+                            _deviceStates[_devices[index].id] ?? false;
                         final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
