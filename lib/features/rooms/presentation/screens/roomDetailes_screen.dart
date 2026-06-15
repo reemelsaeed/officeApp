@@ -26,6 +26,7 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
   @override
   void initState() {
     super.initState();
+    subscripeForDevices();
     _loadDevices();
     _loadscenes();
     // subscribe for sensors//
@@ -49,6 +50,9 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
     }
     //////////////////////////////////////////////////////////
     // subscribe for devices//
+  }
+
+  void subscripeForDevices() async {
     for (final device in _devices) {
       MqttServices().subscribe(
         'office/room/${widget.roomModel.id}/devices/${device.type.toString().split('.').last}/state',
@@ -67,7 +71,6 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
         _deviceStates[device.id] = cached == 'ON';
       }
     }
-    /////////////////////////////////////////////////////////////////////
   }
 
   void _loadDevices() async {
@@ -198,7 +201,7 @@ class _RoomdetailesScreenState extends State<RoomdetailesScreen> {
                 SizedBox(height: 16),
               ],
 
-              if (_scenes.isNotEmpty) ...[
+              if (_devices.isNotEmpty) ...[
                 Text(
                   'Devices',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),

@@ -1,30 +1,56 @@
 enum DeviceType { light, ac, curtains, projector, socket }
 
+enum AcMode { cool, heat, fan, auto }
+
+enum AcFanSpeed { low, medium, high, auto }
+
 class DeviceModel {
   int id;
+  int roomId;
   String name;
   DeviceType type;
   bool isOn;
   double? temperature;
   String? curtainStatus;
+  double brightness;
+  AcMode acMode;
+  AcFanSpeed acFanSpeed;
 
   DeviceModel({
     required this.id,
+    required this.roomId,
     required this.name,
     required this.type,
     required this.isOn,
     this.temperature,
     this.curtainStatus,
+    this.brightness = 0,
+    this.acFanSpeed = AcFanSpeed.auto,
+    this.acMode = AcMode.auto,
   });
 
   factory DeviceModel.fromMap(Map<String, dynamic> map) {
     return DeviceModel(
       id: map['id'],
+      roomId: map['room_id'],
       name: map['name'],
-      isOn: false,
       type: DeviceType.values.firstWhere(
         (e) => e.name == map['type'],
         orElse: () => DeviceType.socket,
+      ),
+      isOn: map['is_on'] ?? false,
+      brightness: (map['brightness'] ?? 0).toDouble(),
+      temperature: map['temperature'] != null
+          ? (map['temperature'] as num).toDouble()
+          : null,
+      curtainStatus: map['curtain_status'],
+      acMode: AcMode.values.firstWhere(
+        (e) => e.name == (map['ac_mode'] ?? 'auto'),
+        orElse: () => AcMode.auto,
+      ),
+      acFanSpeed: AcFanSpeed.values.firstWhere(
+        (e) => e.name == (map['ac_fan_speed'] ?? 'auto'),
+        orElse: () => AcFanSpeed.auto,
       ),
     );
   }
